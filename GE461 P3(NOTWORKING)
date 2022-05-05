@@ -1,0 +1,94 @@
+from cgi import test
+import sys
+from gettext import translation
+from pyexpat import model
+import numpy as np
+import pandas as pd
+import sys
+import sklearn
+import scipy
+import seaborn
+import matplotlib.pyplot as plt
+import random
+sys.setrecursionlimit(10000)
+datatrain = np.loadtxt("train1.txt", dtype = float)
+datatest= np.loadtxt("test1.txt", dtype = float)
+train= np.zeros(shape = (60,2),dtype = float)
+testd= np.zeros(shape = (41,2),dtype = float)
+"""""
+plt.imshow(np.array(datatrain).reshape(60, 2))
+plt.show()
+plt.imshow(np.array(datatest).reshape(41, 2))
+plt.show()
+"""""
+class Layer:
+    def sigmoid(x):
+        return 1/(1+np.exp(-x))
+    def generate_weights(self,input_units,output_units):
+        l=[]
+        for i in range(input_units):
+            for j in range(output_units):
+                l.append(np.random.randn())
+        return np.array(l)
+
+    def generate_bias(self,output_units):
+        l=[]
+        for i in range(output_units):
+            l.append(np.random.randn())
+        return np.array(l)
+    def stochastic_learning_algorithm(self,input,output,alpha,epoch):
+        for i in range(epoch):
+            for j in range(len(input)):
+                self.weights,self.bias=self.back_prop(input[j],output[j],self.weights,alpha,self.bias)
+    def f_forward(self,input,weights,bias):
+        return self.sigmoid(np.matmul(input,weights)+bias)
+    def loss(self,x,y):
+        return np.sum(np.square(x-y))
+    def back_prop(self,x,y,weights,alpha,bias):
+        loss=self.loss(self.f_forward(x,weights,bias),y)
+        dloss=loss*(1-loss)
+        dweights=alpha*dloss*x
+        dbias=alpha*dloss
+        return dweights,dbias
+    def train(self,x,y,alpha,epoch):
+        for i in range(epoch):
+            for j in range(len(x)):
+                weights,bias=self.back_prop(x[j],y[j],weights,alpha,bias)
+        return weights,bias
+    def predict(self,x,weights,bias):
+        return self.f_forward(x,weights,bias)
+    def accuracy(self,x,y,weights,bias):
+        count=0
+        for i in range(len(x)):
+            if self.f_forward(x[i],weights,bias)>0.5:
+                if y[i]==1:
+                    count+=1
+            else:
+                if y[i]==0:
+                    count+=1
+        return count/len(x)
+    def __init__(self,input_units,output_units):
+        self.weights=self.generate_weights(input_units,output_units)
+        self.bias=self.generate_bias(output_units)
+    def forward(self,input):
+        return self.f_forward(input,self.weights,self.bias)
+    def train(self,input,output,alpha,epoch):
+        for i in range(epoch):
+            for j in range(len(input)):
+                self.weights,self.bias=self.back_prop(input[j],output[j],self.weights,alpha,self.bias)
+        return self.weights,self.bias
+    def predict(self,input):
+        return self.f_forward(input,self.weights,self.bias)
+    def accuracy(self,input,output):
+        return self.accuracy(input,output,self.weights,self.bias)
+model = Layer(2,10)
+model.train(datatrain[:,0],datatrain[:,1],0.1,100)
+print(model.accuracy(datatest[:,0],datatest[:,1]))
+
+
+
+
+
+
+
+

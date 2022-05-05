@@ -1,0 +1,58 @@
+from distutils.log import error
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+from sklearn import preprocessing
+datatrain=pd.read_csv("train1.txt",header=None, delimiter='\t')
+datatest= pd.read_csv("test1.txt",header=None, delimiter='\t')
+train1=datatrain[0].values
+train2=datatrain[1].values
+test1=datatest[0].values
+test2=datatest[1].values
+train1normal=preprocessing.normalize(train1)
+train2normal=preprocessing.normalize(train2)
+test1normal=preprocessing.normalize(test1)
+test2normal=preprocessing.normalize(test2)
+def lin_reg(features,labels,learning,epoch, eps):
+    n_samp = features.shape[0]
+    np.random.seed(0)
+    w=np.random.normal(0,0.001,2)
+    for i in range(epoch):
+        for j in range(0,n_samp):
+            x = features[j]
+            y = labels[j]
+            pred = w[0] + w[1] * x
+            diff=y-pred
+            dw0 = -2 * diff
+            dw1 = -2 * diff * x
+            w[0] -= learning * dw0
+            w[1] -= learning * dw1
+    return w
+def plot_data(features, labels,pred):
+    plt.plot(features, pred, label = 'prediction')
+    plt.scatter(features, labels,color ='b' , label = 'data', s=50)
+    plt.xlabel('feature')
+    plt.ylabel('label')
+    plt.legend(loc='upper right')
+    plt.show()
+    plt.title("Results on Training Data")
+a = lin_reg(train1normal, train2, 0.001, 50,0.01)
+pred = a[1] * train1normal + a[0]
+plot_data(train1normal, train2, pred)
+error1 = np.mean(np.abs(pred - train2))
+print('MSE is Equal To =', error1)
+def plot_data2(features, labels,pred):
+    plt.plot(features, pred, label = 'prediction')
+    plt.scatter(features, labels,color ='b' , label = 'data', s=50)
+    plt.xlabel('feature')
+    plt.ylabel('label')
+    plt.legend(loc='upper right')
+    plt.show()
+    plt.title("Results on Test Data")
+b = lin_reg(test1normal, test2, 0.001, 50,0.01)
+pred2 = b[1] * test1normal + a[0]
+plot_data2(test1normal, test2, pred2)
+error2 = np.mean(np.abs(pred2 - test2))
+print('MSE is Equal To =', error2)
